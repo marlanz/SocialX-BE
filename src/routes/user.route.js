@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  followUser,
   getCurrentUser,
   getUserProfile,
   syncUser,
@@ -14,5 +15,6 @@ router.get("/profile/:username", getUserProfile);
 router.get("/me", protectedRoute, getCurrentUser);
 router.post("/sync", protectedRoute, syncUser);
 router.put("/profile", protectedRoute, updateProfile);
+router.post("/follow/:targetUserId", protectedRoute, followUser);
 
 export default router;
