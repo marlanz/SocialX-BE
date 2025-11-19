@@ -5,6 +5,7 @@ import { ENV } from "./config/env.js";
 import { connectDB } from "./config/db.js";
 
 import userRoutes from "./routes/user.route.js";
+import postRoutes from "./routes/post.route.js";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(clerkMiddleware());
 
 app.get("/", (req, res) => res.send("Hello from server"));
 app.get("/api/users", userRoutes);
+app.get("/api/posts", postRoutes);
 
 const startServer = async () => {
   try {

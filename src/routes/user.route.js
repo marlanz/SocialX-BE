@@ -10,7 +10,7 @@ import { protectedRoute } from "../middleware/authentication.middleware";
 
 const router = express.Router();
 
-router.get("/profile/:username", getUserProfile);
+router.get("/profile/:userName", getUserProfile);
 
 router.get("/me", protectedRoute, getCurrentUser);
 router.post("/sync", protectedRoute, syncUser);
