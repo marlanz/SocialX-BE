@@ -3,8 +3,10 @@ import {
   getAllPosts,
   getPostDetail,
   getUserPosts,
+  createPost,
 } from "../controllers/post.controller";
 import { protectedRoute } from "../middleware/authentication.middleware";
+import upload from "../middleware/upload.middleware";
 
 const router = express.Router();
 
@@ -12,6 +14,6 @@ router.get("/", getAllPosts);
 router.get("/:postId", getPostDetail);
 router.get("/user/:username", getUserPosts);
 
-router.post("/create", protectedRoute);
+router.post("/create", protectedRoute, upload.single("image"), createPost);
 
 export default router;
