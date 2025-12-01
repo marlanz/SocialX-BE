@@ -7,8 +7,8 @@ import {
   toggleLikePost,
   deletePost,
 } from "../controllers/post.controller";
-import { protectedRoute } from "../middleware/authentication.middleware";
-import upload from "../middleware/upload.middleware";
+import { protectedRoute } from "../middleware/authentication.middleware.js";
+import upload from "../middleware/upload.middleware.js";
 
 const router = express.Router();
 

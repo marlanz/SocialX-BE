@@ -17,7 +17,7 @@ app.get("/", (req, res) => res.send("Hello from server"));
 app.get("/api/users", userRoutes);
 app.get("/api/posts", postRoutes);
 
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   console.error("Unhandled errors", err);
   res.status(500).json({ error: err.message || "Internal server error" });
 });
