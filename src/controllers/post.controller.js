@@ -146,7 +146,7 @@ export const deletePost = expressAsyncHandler(async (req, res) => {
   const user = await User.findOne({ clerkId: userId });
   const post = await Post.findById(postId);
 
-  if (!user | !post)
+  if (!user || !post)
     return res.status(404).json({ error: "User or post not found" });
 
   if (post.user.toString !== user._id.toString())
