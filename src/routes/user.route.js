@@ -5,8 +5,8 @@ import {
   getUserProfile,
   syncUser,
   updateProfile,
-} from "../controllers/user.controller";
-import { protectedRoute } from "../middleware/authentication.middleware";
+} from "../controllers/user.controller.js";
+import { protectedRoute } from "../middleware/authentication.middleware.js";
 
 const router = express.Router();
 

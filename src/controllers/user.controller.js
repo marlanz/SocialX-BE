@@ -1,6 +1,6 @@
 import { clerkClient, getAuth } from "@clerk/express";
 import asyncHandler from "express-async-handler";
-import User from "../models/user.model";
+import User from "../models/user.model.js";
 
 export const getUserProfile = asyncHandler(async (req, res) => {
   const { userName } = req.params;

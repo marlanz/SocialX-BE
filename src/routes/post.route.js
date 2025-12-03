@@ -6,7 +6,7 @@ import {
   createPost,
   toggleLikePost,
   deletePost,
-} from "../controllers/post.controller";
+} from "../controllers/post.controller.js";
 import { protectedRoute } from "../middleware/authentication.middleware.js";
 import upload from "../middleware/upload.middleware.js";
 

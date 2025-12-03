@@ -1,10 +1,10 @@
 import express from "express";
-import { protectedRoute } from "../middleware/authentication.middleware";
+import { protectedRoute } from "../middleware/authentication.middleware.js";
 import {
   createComment,
   deleteComment,
   getComments,
-} from "../controllers/comment.controller";
+} from "../controllers/comment.controller.js";
 
 const router = express.Router();
 

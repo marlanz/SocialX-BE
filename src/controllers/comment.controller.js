@@ -4,6 +4,7 @@ import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
 import expressAsyncHandler from "express-async-handler";
 import { getAuth } from "@clerk/express";
+import mongoose from "mongoose";
 
 export const getComments = expressAsyncHandler(async (req, res) => {
   const { postId } = req.params;
@@ -30,13 +31,40 @@ export const createComment = expressAsyncHandler(async (req, res) => {
   if (!post || !user)
     return res.status(404).json({ error: "User or Post not found" });
 
-  const comment = await Comment.create({
-    user: user._id,
-    post: post._id,
-    content: content.trim(),
-  });
+  //implement mongodb transaction
 
-  await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
+  const session = await mongoose.startSession();
+
+  try {
+    await session.withTransaction(async () => {
+      const comment = await Comment.create(
+        [
+          {
+            user: user._id,
+            post: post._id,
+            content: content.trim(),
+          },
+        ],
+        { session }
+      );
+
+      await Post.findByIdAndUpdate(
+        post._id,
+        { $push: { comments: comment[0]._id } },
+        { session }
+      );
+    });
+  } finally {
+    session.endSession();
+  }
+
+  // const comment = await Comment.create({
+  //   user: user._id,
+  //   post: post._id,
+  //   content: content.trim(),
+  // });
+
+  // await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
 
   if (post.user.toString() !== user._id.toString()) {
     await Notification.create({
