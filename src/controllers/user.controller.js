@@ -1,11 +1,15 @@
-import { clerkClient, getAuth } from "@clerk/express";
 import asyncHandler from "express-async-handler";
 import User from "../models/user.model.js";
+import Notification from "../models/notification.model.js";
+
+import { getAuth } from "@clerk/express";
+import { clerkClient } from "@clerk/express";
 
 export const getUserProfile = asyncHandler(async (req, res) => {
-  const { userName } = req.params;
-  const user = await User.findOne({ userName: userName });
+  const { username } = req.params;
+  const user = await User.findOne({ username });
   if (!user) return res.status(404).json({ error: "User not found" });
+
   res.status(200).json({ user });
 });
 
@@ -24,14 +28,15 @@ export const updateProfile = asyncHandler(async (req, res) => {
 export const syncUser = asyncHandler(async (req, res) => {
   const { userId } = getAuth(req);
 
+  // check if user already exists in mongodb
   const existingUser = await User.findOne({ clerkId: userId });
-
   if (existingUser) {
     return res
       .status(200)
-      .json({ user: existingUser, message: "User already exist" });
+      .json({ user: existingUser, message: "User already exists" });
   }
 
+  // create new user from Clerk data
   const clerkUser = await clerkClient.users.getUser(userId);
 
   const userData = {
@@ -45,17 +50,16 @@ export const syncUser = asyncHandler(async (req, res) => {
 
   const user = await User.create(userData);
 
-  res.status(200).json({ user, message: "User created successfully" });
+  res.status(201).json({ user, message: "User created successfully" });
 });
 
 export const getCurrentUser = asyncHandler(async (req, res) => {
   const { userId } = getAuth(req);
-
   const user = await User.findOne({ clerkId: userId });
 
   if (!user) return res.status(404).json({ error: "User not found" });
 
-  return res.status(200).json({ user });
+  res.status(200).json({ user });
 });
 
 export const followUser = asyncHandler(async (req, res) => {
@@ -71,30 +75,34 @@ export const followUser = asyncHandler(async (req, res) => {
   if (!currentUser || !targetUser)
     return res.status(404).json({ error: "User not found" });
 
-  const isFollowing = currentUser.following.some(
-    (id) => id.toString() === targetUserId
-  );
+  const isFollowing = currentUser.following.includes(targetUserId);
 
-  const updateCurrent = isFollowing
-    ? { $pull: { following: targetUser._id } }
-    : { $push: { following: targetUser._id } };
+  if (isFollowing) {
+    // unfollow
+    await User.findByIdAndUpdate(currentUser._id, {
+      $pull: { following: targetUserId },
+    });
+    await User.findByIdAndUpdate(targetUserId, {
+      $pull: { followers: currentUser._id },
+    });
+  } else {
+    // follow
+    await User.findByIdAndUpdate(currentUser._id, {
+      $push: { following: targetUserId },
+    });
+    await User.findByIdAndUpdate(targetUserId, {
+      $push: { followers: currentUser._id },
+    });
 
-  const updateTarget = isFollowing
-    ? { $pull: { followers: currentUser._id } }
-    : { $push: { followers: currentUser._id } };
+    // create notification
+    await Notification.create({
+      from: currentUser._id,
+      to: targetUserId,
+      type: "follow",
+    });
+  }
 
-  await Promise.all([
-    User.findByIdAndUpdate(currentUser._id, updateCurrent),
-    User.findByIdAndUpdate(targetUser._id, updateTarget),
-    !isFollowing &&
-      Notification.create({
-        from: currentUser._id,
-        to: targetUser._id,
-        types: "follow",
-      }),
-  ]);
-
-  return res.status(200).json({
+  res.status(200).json({
     message: isFollowing
       ? "User unfollowed successfully"
       : "User followed successfully",
