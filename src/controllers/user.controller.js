@@ -37,20 +37,21 @@ export const syncUser = asyncHandler(async (req, res) => {
   }
 
   // create new user from Clerk data
-  const clerkUser = await clerkClient.users.getUser(userId);
+  // const clerkUser = await clerkClient.users.getUser(userId);
 
-  const userData = {
-    clerkId: userId,
-    email: clerkUser.emailAddresses[0].emailAddress,
-    firstName: clerkUser.firstName || "",
-    lastName: clerkUser.lastName || "",
-    userName: clerkUser.emailAddresses[0].emailAddress.split("@")[0],
-    profilePicture: clerkUser.imageUrl || "",
-  };
+  // const userData = {
+  //   clerkId: userId,
+  //   email: clerkUser.emailAddresses[0].emailAddress,
+  //   firstName: clerkUser.firstName || "",
+  //   lastName: clerkUser.lastName || "",
+  //   userName: clerkUser.emailAddresses[0].emailAddress.split("@")[0],
+  //   profilePicture: clerkUser.imageUrl || "",
+  // };
 
-  const user = await User.create(userData);
+  // const user = await User.create(userData);
 
-  res.status(201).json({ user, message: "User created successfully" });
+  // res.status(201).json({ user, message: "User created successfully" });
+  res.status(201).json({ userId });
 });
 
 export const getCurrentUser = asyncHandler(async (req, res) => {
