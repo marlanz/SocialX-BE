@@ -2,10 +2,10 @@
 import { getAuth } from "@clerk/express";
 
 export const testAuth = (req, res) => {
-  const auth = getAuth(req);
+  const { userId } = getAuth(req);
 
   res.json({
     message: "Clerk auth test",
-    auth,
+    userId,
   });
 };
